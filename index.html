@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Space Explorer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>NASA Space Explorer</h1>
+        <img class="logo" src="/nasa-explorer/imgs/nasa-logo.svg">
+        <form id="search-form">
+            <input type="text" id="search-input" placeholder="Search NASA archive (e.g., Mars, Artemis)..." required>
+            <button type="submit">Search</button>
+        </form>
+    </header>
+
+    <main>
+        <section id="gallery-section">
+            <div class="controls">
+                <h2 id="gallery-title">Images Of The Day</h2>
+                <div class="category-buttons">
+                    <button type="button" class="filter-btn" data-query="galaxy">Galaxies</button>
+                    <button type="button" class="filter-btn" data-query="mars">Mars</button>
+                    <button type="button" class="filter-btn" data-query="artemis">Artemis</button>
+                    <button type="button" class="filter-btn" data-query="nebula">Nebula</button>
+                    <button type="button" class="filter-btn" data-query="earth">Earth</button>
+                </div>
+            </div>
+            <div id="gallery-grid" class="grid"></div>
+        </section>
+
+        <section id="apod-section">
+            <div class="controls">
+                <h2>Astronomy Picture of the Day</h2>
+            </div>
+            <div id="apod-container" class="card">
+                <p>Loading today's picture...</p>
+            </div>
+        </section>
+    </main>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
