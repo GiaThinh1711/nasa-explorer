@@ -23,14 +23,16 @@ function getNasaImage(item) {
 }
 
 function getEmbedVideoUrl(rawUrl) {
-  if (!rawUrl) return "";
-  const ytMatch = rawUrl.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-  );
-  if (ytMatch) {
-    return `https://www.youtube.com/embed/${ytMatch[1]}`;
-  }
-  return rawUrl;
+    if (!rawUrl) return '';
+    if (rawUrl.includes('youtube.com/watch?v=')) {
+        const videoId = rawUrl.split('v=')[1].split('&')[0];
+        return `https://www.youtube.com/embed/${videoId}`;
+    }
+    if (rawUrl.includes('youtu.be/')) {
+        const videoId = rawUrl.split('youtu.be/')[1].split('?')[0];
+        return `https://www.youtube.com/embed/${videoId}`;
+    }
+    return rawUrl;
 }
 
 async function loadGallery(gridEl, query = "") {
