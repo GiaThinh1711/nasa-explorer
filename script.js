@@ -21,6 +21,16 @@ function getNasaImage(item) {
     return div.querySelector('img')?.src || '';
 }
 
+function getEmbedVideoUrl(rawUrl) {
+    if (!rawUrl) return '';
+    // Chuyển link YouTube thường (watch?v= hoặc youtu.be/) sang link embed để nhúng iframe
+    const ytMatch = rawUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (ytMatch) {
+        return `https://www.youtube.com/embed/${ytMatch[1]}`;
+    }
+    return rawUrl;
+}
+
 async function loadGallery(gridEl, query = '') {
     gridEl.textContent = 'Loading NASA Image of the Day...';
     const url = query
@@ -88,16 +98,70 @@ async function loadAPOD(container) {
         const mediaDiv = document.createElement('div');
         mediaDiv.classList.add('apod-media');
 
-        if (data.media_type === 'video') {
+        const mediaUrl = data.hdurl || data.url || '';
+        const isEmbedIframe = /youtube\.com|youtu\.be|vimeo\.com/i.test(mediaUrl);
+        const isDirectVideo =
+            data.media_type === 'video' ||
+            /assets\.science\.nasa\.gov|\.mp4|\.webm|\.mov/i.test(mediaUrl);
+
+        if (isEmbedIframe) {
             const iframe = document.createElement('iframe');
-            iframe.src = data.url;
-            iframe.title = data.title;
+            iframe.src = getEmbedVideoUrl(mediaUrl);
+            iframe.title = data.title || 'NASA APOD Video';
             iframe.allowFullscreen = true;
+            iframe.style.width = '100%';
+            iframe.style.aspectRatio = '16 / 9';
+            iframe.style.border = 'none';
             mediaDiv.append(iframe);
+        } else if (isDirectVideo) {
+            const video = document.createElement('video');
+            video.src = mediaUrl;
+            video.controls = true;
+            video.autoplay = true;
+            video.muted = true;
+            video.loop = true;
+            video.playsInline = true;
+            if (data.thumbnail_url) video.poster = data.thumbnail_url;
+            video.style.width = '100%';
+            video.style.borderRadius = '8px';
+
+            // Nếu trình duyệt vẫn không phát được định dạng video của NASA, tự chuyển sang ảnh thumbnail + nút mở link gốc
+            video.onerror = () => {
+                mediaDiv.innerHTML = '';
+                if (data.thumbnail_url) {
+                    const fallbackImg = document.createElement('img');
+                    fallbackImg.src = data.thumbnail_url;
+                    fallbackImg.alt = data.title;
+                    mediaDiv.append(fallbackImg);
+                }
+                const link = document.createElement('a');
+                link.href = mediaUrl;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = '▶ Watch Original Video on NASA';
+                link.style.display = 'inline-block';
+                link.style.marginTop = '12px';
+                link.style.padding = '10px 16px';
+                link.style.backgroundColor = '#0b3d91';
+                link.style.color = '#ffffff';
+                link.style.borderRadius = '6px';
+                link.style.textDecoration = 'none';
+                link.style.fontWeight = 'bold';
+                mediaDiv.append(link);
+            };
+
+            mediaDiv.append(video);
         } else {
             const img = document.createElement('img');
-            img.src = data.hdurl || data.url;
+            img.src = mediaUrl;
             img.alt = data.alt || data.title;
+            img.onerror = () => {
+                if (data.url && img.src !== data.url) {
+                    img.src = data.url;
+                } else if (data.thumbnail_url && img.src !== data.thumbnail_url) {
+                    img.src = data.thumbnail_url;
+                }
+            };
             mediaDiv.append(img);
         }
 
