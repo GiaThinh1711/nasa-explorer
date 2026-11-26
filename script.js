@@ -23,16 +23,16 @@ function getNasaImage(item) {
 }
 
 function getEmbedVideoUrl(rawUrl) {
-    if (!rawUrl) return '';
-    if (rawUrl.includes('youtube.com/watch?v=')) {
-        const videoId = rawUrl.split('v=')[1].split('&')[0];
-        return `https://www.youtube.com/embed/${videoId}`;
-    }
-    if (rawUrl.includes('youtu.be/')) {
-        const videoId = rawUrl.split('youtu.be/')[1].split('?')[0];
-        return `https://www.youtube.com/embed/${videoId}`;
-    }
-    return rawUrl;
+  if (!rawUrl) return "";
+  if (rawUrl.includes("youtube.com/watch?v=")) {
+    const videoId = rawUrl.split("v=")[1].split("&")[0];
+    return `https://www.youtube.com/embed/${videoId}`;
+  }
+  if (rawUrl.includes("youtu.be/")) {
+    const videoId = rawUrl.split("youtu.be/")[1].split("?")[0];
+    return `https://www.youtube.com/embed/${videoId}`;
+  }
+  return rawUrl;
 }
 
 async function loadGallery(gridEl, query = "") {
@@ -106,9 +106,7 @@ async function loadAPOD(container) {
 
     const mediaUrl = data.hdurl || data.url || "";
     const isEmbedIframe = /youtube\.com|youtu\.be|vimeo\.com/i.test(mediaUrl);
-    const isDirectVideo =
-      data.media_type === "video" ||
-      /assets\.science\.nasa\.gov|\.mp4|\.webm|\.mov/i.test(mediaUrl);
+    const isVideoFile = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(mediaUrl);
 
     if (isEmbedIframe) {
       const iframe = document.createElement("iframe");
@@ -119,7 +117,7 @@ async function loadAPOD(container) {
       iframe.style.aspectRatio = "16 / 9";
       iframe.style.border = "none";
       mediaDiv.append(iframe);
-    } else if (isDirectVideo) {
+    } else if (isVideoFile) {
       const video = document.createElement("video");
       video.src = mediaUrl;
       video.controls = true;
@@ -143,7 +141,7 @@ async function loadAPOD(container) {
         link.href = mediaUrl;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
-        link.textContent = "▶ Watch Original Video on NASA";
+        link.textContent = "▶ Open Media on NASA";
         link.style.display = "inline-block";
         link.style.marginTop = "12px";
         link.style.padding = "10px 16px";
